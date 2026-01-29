@@ -8,13 +8,64 @@
 - `.claude/skills/` - 各工程のスキル定義
 - `outputs/` - 生成物の出力先
 
-## ワークフロー
+## クイックスタート
 
-1. プロジェクト開始（project-id生成: `YYYYMMDD-HHMMSS_slug`）
-2. `/world-building <project-id> <keywords>` → 世界観構築
-3. `/plot-template <project-id>` → プロット作成（narou-flavor参照）
-4. `/chapter-writing <project-id> N` → 第N章執筆（subagent）
-5. `/refinement <project-id> N` → 第N章推敲（subagent）
+```
+/start-writing
+```
+
+対話形式でワークフロー全体を実行。新規・再開どちらにも対応。
+
+---
+
+## ワークフロー設計
+
+### Master / Subagent の分離
+
+| 層 | 処理タイプ | 特徴 |
+|:--|:--|:--|
+| **Master** | 設計・定義系 | 一発で決まる、コンテキストを汚さない |
+| **Subagent** | 実装・精製系 | 試行錯誤が必要、長い、反復的 |
+
+### 処理フロー
+
+```
+[キーワード入力]
+       ↓
+┌─────────────────────────────┐
+│  Master（メイン会話）        │
+│  ├─ world-building          │ ← 世界観構築
+│  └─ plot-template           │ ← プロット＋キャラ作成
+│      ↑                      │
+│      参照: narou-flavor     │
+└─────────────────────────────┘
+       ↓
+┌─────────────────────────────┐
+│  Subagent（context: fork）  │
+│  ├─ chapter-writing         │ ← 章執筆
+│  └─ refinement              │ ← 推敲・検証
+└─────────────────────────────┘
+       ↓
+[完成原稿]
+```
+
+### 個別スキル呼び出し
+
+必要に応じて個別に実行も可能:
+
+| スキル | コマンド例 | 実行層 |
+|:--|:--|:--|
+| world-building | `/world-building <project-id> <単語1> <単語2> <単語3>` | Master |
+| plot-template | `/plot-template <project-id>` | Master |
+| chapter-writing | `/chapter-writing <project-id> <章番号>` | Subagent |
+| refinement | `/refinement <project-id> <章番号 or all>` | Subagent |
+| naming | `/naming <project-id> <種類> <個数>` | Master |
+
+### 参照スキル（user-invocable: false）
+
+- **narou-flavor**: なろう系ジャンル特有の要素・お約束を提供
+
+---
 
 ## 出力先
 
@@ -22,13 +73,20 @@
 outputs/<project-id>/
   input.md          - 入力キーワード・指示
   worldview.md      - 世界観設定
-  characters.md     - キャラクター設定
   plot.md           - プロット骨子
+  characters.md     - キャラクター設定（任意、名前なしでも可）
   chapters/
     01.md           - 各章本文
     02.md
     ...
   final.md          - 最終成果物
+```
+
+### プロジェクトID規則
+
+```
+<project-id> = YYYYMMDD-HHMMSS_<slug>
+例: 20260129-173500_isekai-cheat
 ```
 
 ---
@@ -61,3 +119,30 @@ outputs/<project-id>/
 3. 選択肢C（説明）
 4. その他（自由入力）
 ```
+
+---
+
+## リサーチルール
+
+専門知識が必要な場合は `WebSearch` を使用する。
+
+### 検索すべき場面
+
+| 場面 | 検索内容 |
+|:--|:--|
+| 世界観構築 | 神話、歴史、文化、宗教、民俗学 |
+| プロット構築 | 有名作品の構造、短編技法、物語論 |
+| 執筆 | 描写のリアリティ（武器、料理、建築、職業など） |
+| 面白さの核 | 類似作品の手法、オチのパターン |
+
+### 検索のタイミング
+
+- **事前調査**: スキル実行前に必要な知識を収集
+- **行き詰まり時**: アイデアが出ない時に参考を探す
+- **リアリティ確認**: 書いた内容の正確性を確認
+
+### 検索結果の扱い
+
+- 丸パクリしない。参考にして独自性を加える
+- 出典は明示しない（小説内に）
+- 複数ソースを参照して偏りを避ける

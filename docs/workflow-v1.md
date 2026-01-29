@@ -28,16 +28,13 @@ flowchart TD
     subgraph Master["Master（メイン会話）"]
         direction TB
         W[world-building<br/>世界観構築]
-        C[character-design<br/>キャラクター設定]
-        P[plot-structure<br/>プロット骨子]
+        P[plot-template<br/>プロット＋キャラ]
 
         K --> W
-        W --> C
-        C --> P
+        W --> P
     end
 
     subgraph Skills["参照スキル"]
-        PT[plot-template<br/>物語構造ライブラリ]
         NF[narou-flavor<br/>ジャンル味付け]
     end
 
@@ -54,7 +51,6 @@ flowchart TD
     end
 
     P --> CH
-    PT -.->|参照| P
     NF -.->|参照| P
     NF -.->|参照| CH
     RF --> O
@@ -73,10 +69,9 @@ flowchart TD
 | ステップ | 入力 | 出力 | スキル参照 |
 |:--|:--|:--|:--|
 | world-building | キーワード | 世界観設定 | - |
-| character-design | 世界観設定 | キャラクター定義 | - |
-| plot-structure | 世界観 + キャラ | プロット骨子 | plot-template, narou-flavor |
+| plot-template | 世界観設定 | プロット骨子 + キャラ（必要に応じて） | narou-flavor |
 
-**特徴**: 設計フェーズ。一度決めたら変わらない土台を作る。
+**特徴**: 設計フェーズ。一度決めたら変わらない土台を作る。キャラクターはプロット構築時に必要なら定義する（名前なしでも可）。
 
 ### Subagent層（context: fork で実行）
 
@@ -94,15 +89,15 @@ flowchart TD
 ```
 .claude/
   skills/
-    # Master用（知識・テンプレート参照）
+    # Master用
     world-building/
       SKILL.md
     plot-template/
       SKILL.md
-      structures/           # 物語構造の参照資料
+
+    # 参照スキル（user-invocable: false）
     narou-flavor/
       SKILL.md
-      genres/               # ジャンル別の定番要素
 
     # Subagent用（context: fork）
     chapter-writing/
@@ -110,12 +105,16 @@ flowchart TD
     refinement/
       SKILL.md              # context: fork 設定
 
+    # 補助スキル
+    naming/
+      SKILL.md              # 必要に応じて名前生成
+
 outputs/
   <project-id>/             # プロジェクト単位で分離
     input.md                # 入力キーワード・指示の保存
     worldview.md            # Master出力: 世界観
-    characters.md           # Master出力: キャラクター
     plot.md                 # Master出力: プロット
+    characters.md           # Master出力: キャラクター（任意）
     chapters/
       01.md                 # Subagent出力: 各章
       02.md
