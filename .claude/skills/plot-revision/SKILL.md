@@ -21,6 +21,26 @@ description: 既存のプロットを診断し、素材を活かして根本か�
 
 ## 手順
 
+### 0. バージョン保存
+
+**書き直す前に、現在のファイルをバックアップする。**
+
+```bash
+# versions/ フォルダがなければ作成
+mkdir -p outputs/<project-id>/versions
+
+# 次のバージョン番号を取得
+# plot_v1.md, plot_v2.md, ... と連番で保存
+ls outputs/<project-id>/versions/plot_v*.md 2>/dev/null | wc -l
+# → 結果+1 が次のバージョン番号
+
+# 現在のファイルをバックアップ
+cp outputs/<project-id>/plot.md outputs/<project-id>/versions/plot_v<N>.md
+
+# worldview.md も変更する場合は同様に
+cp outputs/<project-id>/worldview.md outputs/<project-id>/versions/worldview_v<N>.md
+```
+
 ### 1. 診断
 
 現在のプロットの問題点を特定する。
@@ -52,4 +72,5 @@ description: 既存のプロットを診断し、素材を活かして根本か�
 
 ## 出力
 
+- `outputs/<project-id>/versions/plot_v<N>.md`（バックアップ）
 - `outputs/<project-id>/plot.md`（書き直し後）

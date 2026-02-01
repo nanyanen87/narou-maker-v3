@@ -28,6 +28,25 @@ description: 3つの単語から世界観を構築し、物語のスコープを
 - 単語2: $ARGUMENTS[2]
 - 単語3: $ARGUMENTS[3]
 
+## Phase 0: バージョン保存（既存ファイルがある場合のみ）
+
+**既に worldview.md が存在する場合、書き換える前にバックアップする。**
+
+```bash
+# 既存ファイルがあるか確認
+if [ -f outputs/<project-id>/worldview.md ]; then
+  # versions/ フォルダがなければ作成
+  mkdir -p outputs/<project-id>/versions
+
+  # 次のバージョン番号を取得
+  count=$(ls outputs/<project-id>/versions/worldview_v*.md 2>/dev/null | wc -l)
+  next=$((count + 1))
+
+  # バックアップ
+  cp outputs/<project-id>/worldview.md outputs/<project-id>/versions/worldview_v${next}.md
+fi
+```
+
 ## Phase 1: 活用タイプの決定
 
 各単語をどう使うか方針を決める:
